@@ -34,7 +34,7 @@ class Window:
         self.__canvas.pack()
         self.is_running = False
 
-        # connects `close` class method to delete window action, stopping th eprogram once we close the window
+        # connects `close` class method to delete window action, stopping the program once we close the window
         self.__root.protocol("WM_DELETE_WINDOW", self.close)
 
     def redraw(self) -> None:
