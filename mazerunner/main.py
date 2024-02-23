@@ -1,12 +1,13 @@
 import random
 
 from mazerunner.core import Line, Point, Window
+from mazerunner.maze import Cell
 
 
 def main() -> int:
-    win = Window(800, 600)
+    win = Window(1280, 800)
     lines = []
-    for _ in range(32):
+    for _ in range(16):
         p1 = Point(x=random.randint(0, 400), y=random.randint(0, 300))
         p2 = Point(x=random.randint(400, 800), y=random.randint(300, 600))
         lines.append(Line(start=p1, end=p2))
@@ -18,6 +19,9 @@ def main() -> int:
                 ["red", "green", "blue", "yellow", "cyan", "magenta", "black", "white"]
             ),
         )
+
+    c = Cell(Point(10, 10), Point(150, 150), win)
+    c.draw()
 
     win.wait_for_close()
 
