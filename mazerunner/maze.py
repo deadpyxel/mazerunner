@@ -41,3 +41,15 @@ class Cell:
         if self.has_b_wall:
             line = Line(start=Point(x1, y2), end=self._br_corner)
             self._win.draw_line(line=line, fill_colour="black")
+
+    def draw_move(self, to_cell: "Cell", undo: bool = False) -> None:
+        center_self = self._find_cell_center()
+        center_tgt = to_cell._find_cell_center()
+        line = Line(center_self, center_tgt)
+        self._win.draw_line(line, "gray" if undo else "red")
+
+    def _find_cell_center(self) -> Point:
+        # Find X and Y coordinates of the middle of the cell
+        x = (self._tl_corner.x + self._br_corner.x) // 2
+        y = (self._tl_corner.y + self._br_corner.y) // 2
+        return Point(x, y)
