@@ -1,3 +1,6 @@
+import time
+from typing import Optional
+
 from mazerunner.core import Line, Point, Window
 
 
@@ -53,3 +56,46 @@ class Cell:
         x = (self._tl_corner.x + self._br_corner.x) // 2
         y = (self._tl_corner.y + self._br_corner.y) // 2
         return Point(x, y)
+
+
+class Maze:
+    def __init__(
+        self,
+        x1: int,
+        y1: int,
+        num_rows: int,
+        num_cols: int,
+        cell_size: int,
+        win: Window,
+    ) -> None:
+        self.__x0 = x1
+        self.__y0 = y1
+        self.__num_rows = num_rows
+        self.__num_cols = num_cols
+        self.__cell_size = cell_size
+        self.__win = win
+        self._cells: list[list[Cell]] = [
+            [Cell(Point(0, 0), Point(0, 0), self.__win) for _ in range(self.__num_cols)]
+            for _ in range(self.__num_rows)
+        ]
+        self._create_cells()
+
+    def _create_cells(self) -> None:
+        for i in range(self.__num_rows):
+            for j in range(self.__num_cols):
+                x = (j * self.__cell_size) + self.__x0
+                y = (i * self.__cell_size) + self.__y0
+                self._cells[i][j] = Cell(
+                    tl_corner=Point(x, y),
+                    br_corner=Point(x + self.__cell_size, y + self.__cell_size),
+                    win=self.__win,
+                )
+                self._draw_cell(i, j)
+
+    def _draw_cell(self, i: int, j: int) -> None:
+        self._cells[i][j].draw()
+        self._animate()
+
+    def _animate(self) -> None:
+        self.__win.redraw()
+        time.sleep(0.05)
