@@ -1,4 +1,4 @@
-from mazerunner.maze import Maze
+from mazerunner.maze import Maze, Wall
 
 
 def test_maze_has_correct_number_of_cells() -> None:
@@ -17,5 +17,5 @@ def test_maze_can_create_entry_and_exit(dummy_maze: Maze) -> None:
     entry = dummy_maze._cells[0][0]
     out = dummy_maze._cells[-1][-1]
 
-    assert entry.walls[0] is False
-    assert out.walls[2] is False
+    assert entry.walls[Wall.TOP] is False
+    assert out.walls[Wall.BOTTOM] is False

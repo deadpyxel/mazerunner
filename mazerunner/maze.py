@@ -1,11 +1,11 @@
-from enum import Enum
+from enum import IntEnum
 import time
 from typing import Optional
 
 from mazerunner.core import Line, Point, Window
 
 
-class Wall(Enum):
+class Wall(IntEnum):
     TOP = 0
     RIGHT = 1
     LEFT = 2
@@ -113,9 +113,9 @@ class Maze:
 
     def _break_entrance_and_exit(self) -> None:
         entry_cell = self._cells[0][0]
-        entry_cell.walls[0] = False
+        entry_cell.walls[Wall.TOP] = False
         exit_cell = self._cells[-1][-1]
-        exit_cell.walls[2] = False
+        exit_cell.walls[Wall.BOTTOM] = False
 
         if self.__win:
             entry_cell.draw()
