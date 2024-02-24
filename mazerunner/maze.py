@@ -107,7 +107,6 @@ class Maze:
             self.__win.redraw()
             time.sleep(0.05)
 
-
     def __str__(self) -> str:
         s = f"Maze with {self.__num_rows} rows and {self.__num_cols} columns, cell size {self.__cell_size}"
         return f"{s}. {'DRAWING' if self.__win else 'HEADLESS'} mode enabled"
