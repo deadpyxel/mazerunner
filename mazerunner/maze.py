@@ -5,7 +5,9 @@ from mazerunner.core import Line, Point, Window
 
 
 class Cell:
-    def __init__(self, tl_corner: Point, br_corner: Point, win: Window) -> None:
+    def __init__(
+        self, tl_corner: Point, br_corner: Point, win: Optional[Window] = None
+    ) -> None:
         """Cell constructor
 
         Parameters
@@ -28,6 +30,8 @@ class Cell:
         self._win = win  # Window reference
 
     def draw(self) -> None:
+        if not self._win:
+            return
         line = None
         x1, y1 = self._tl_corner.x, self._tl_corner.y
         x2, y2 = self._br_corner.x, self._br_corner.y
@@ -46,10 +50,11 @@ class Cell:
             self._win.draw_line(line=line, fill_colour="black")
 
     def draw_move(self, to_cell: "Cell", undo: bool = False) -> None:
-        center_self = self._find_cell_center()
-        center_tgt = to_cell._find_cell_center()
-        line = Line(center_self, center_tgt)
-        self._win.draw_line(line, "gray" if undo else "red")
+        if self._win:
+            center_self = self._find_cell_center()
+            center_tgt = to_cell._find_cell_center()
+            line = Line(center_self, center_tgt)
+            self._win.draw_line(line, "gray" if undo else "red")
 
     def _find_cell_center(self) -> Point:
         # Find X and Y coordinates of the middle of the cell
@@ -66,7 +71,7 @@ class Maze:
         num_rows: int,
         num_cols: int,
         cell_size: int,
-        win: Window,
+        win: Optional[Window] = None,
     ) -> None:
         self.__x0 = x1
         self.__y0 = y1
@@ -75,7 +80,7 @@ class Maze:
         self.__cell_size = cell_size
         self.__win = win
         self._cells: list[list[Cell]] = [
-            [Cell(Point(0, 0), Point(0, 0), self.__win) for _ in range(self.__num_cols)]
+            [Cell(Point(0, 0), Point(0, 0)) for _ in range(self.__num_cols)]
             for _ in range(self.__num_rows)
         ]
         self._create_cells()
@@ -90,12 +95,19 @@ class Maze:
                     br_corner=Point(x + self.__cell_size, y + self.__cell_size),
                     win=self.__win,
                 )
-                self._draw_cell(i, j)
+                if self.__win:
+                    self._draw_cell(i, j)
 
     def _draw_cell(self, i: int, j: int) -> None:
         self._cells[i][j].draw()
         self._animate()
 
     def _animate(self) -> None:
-        self.__win.redraw()
-        time.sleep(0.05)
+        if self.__win:
+            self.__win.redraw()
+            time.sleep(0.05)
+
+
+    def __str__(self) -> str:
+        s = f"Maze with {self.__num_rows} rows and {self.__num_cols} columns, cell size {self.__cell_size}"
+        return f"{s}. {'DRAWING' if self.__win else 'HEADLESS'} mode enabled"
