@@ -1,7 +1,15 @@
+from enum import Enum
 import time
 from typing import Optional
 
 from mazerunner.core import Line, Point, Window
+
+
+class Wall(Enum):
+    TOP = 0
+    RIGHT = 1
+    LEFT = 2
+    BOTTOM = 3
 
 
 class Cell:
@@ -20,10 +28,9 @@ class Cell:
             window object reference used for drawing
         """
         # a Cell has walls in all four sides by default
-        self.has_l_wall = True
-        self.has_r_wall = True
-        self.has_t_wall = True
-        self.has_b_wall = True
+        # each wall presence is represented by a position in the `wall`  list
+        # Top = 0, Right = 1, Bottom = 2, Left = 3
+        self.walls = [True, True, True, True]
         # spatial dimensions
         self._tl_corner = tl_corner  # Top-Left corner
         self._br_corner = br_corner  # Bottom Right corner
@@ -32,22 +39,18 @@ class Cell:
     def draw(self) -> None:
         if not self._win:
             return
-        line = None
         x1, y1 = self._tl_corner.x, self._tl_corner.y
         x2, y2 = self._br_corner.x, self._br_corner.y
-        # TODO: Refactor this into a loop with a list booleans as wall representation instead
-        if self.has_l_wall:
-            line = Line(start=self._tl_corner, end=Point(x1, y2))
-            self._win.draw_line(line=line, fill_colour="black")
-        if self.has_r_wall:
-            line = Line(start=Point(x2, y1), end=self._br_corner)
-            self._win.draw_line(line=line, fill_colour="black")
-        if self.has_t_wall:
-            line = Line(start=self._tl_corner, end=Point(x2, y1))
-            self._win.draw_line(line=line, fill_colour="black")
-        if self.has_b_wall:
-            line = Line(start=Point(x1, y2), end=self._br_corner)
-            self._win.draw_line(line=line, fill_colour="black")
+        point_pos = {
+            0: (self._tl_corner, Point(x2, y1)),
+            1: (Point(x2, y1), self._br_corner),
+            2: (self._br_corner, Point(x1, y2)),
+            3: (Point(x1, y2), self._tl_corner),
+        }
+        for i, wall in enumerate(self.walls):
+            st, end = point_pos[i]
+            line = Line(start=st, end=end)
+            self._win.draw_line(line=line, fill_colour="black" if wall else "#d9d9d9")
 
     def draw_move(self, to_cell: "Cell", undo: bool = False) -> None:
         if self._win:
@@ -84,6 +87,7 @@ class Maze:
             for _ in range(self.__num_rows)
         ]
         self._create_cells()
+        self._break_entrance_and_exit()
 
     def _create_cells(self) -> None:
         for i in range(self.__num_rows):
@@ -106,6 +110,16 @@ class Maze:
         if self.__win:
             self.__win.redraw()
             time.sleep(0.05)
+
+    def _break_entrance_and_exit(self) -> None:
+        entry_cell = self._cells[0][0]
+        entry_cell.walls[0] = False
+        exit_cell = self._cells[-1][-1]
+        exit_cell.walls[2] = False
+
+        if self.__win:
+            entry_cell.draw()
+            exit_cell.draw()
 
     def __str__(self) -> str:
         s = f"Maze with {self.__num_rows} rows and {self.__num_cols} columns, cell size {self.__cell_size}"
