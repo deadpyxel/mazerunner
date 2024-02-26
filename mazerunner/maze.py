@@ -153,6 +153,17 @@ class Maze:
 
             self._break_wall_r(next_cell[0], next_cell[1])
 
+    def _reset_cells_visited(self) -> None:
+        """
+        Resets the 'visited' attribute of all cells in the grid to False.
+
+        This method iterates through all cells in the grid and sets the 'visited' attribute of each cell to False.
+        """
+
+        for i in range(self.__num_rows):
+            for j in range(self.__num_cols):
+                self._cells[i][j].visited = False
+
     def _cell_is_out_of_bounds(self, pos: tuple[int, int]) -> bool:
         i, j = pos
         return (i < 0 or i >= self.__num_rows) or (j < 0 or j >= self.__num_cols)
