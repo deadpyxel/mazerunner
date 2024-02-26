@@ -1,5 +1,6 @@
-from enum import IntEnum
 import time
+import random
+from enum import IntEnum
 from typing import Optional
 
 from mazerunner.core import Line, Point, Window
@@ -35,6 +36,7 @@ class Cell:
         self._tl_corner = tl_corner  # Top-Left corner
         self._br_corner = br_corner  # Bottom Right corner
         self._win = win  # Window reference
+        self.visited = False
 
     def draw(self) -> None:
         if not self._win:
@@ -75,6 +77,7 @@ class Maze:
         num_cols: int,
         cell_size: int,
         win: Optional[Window] = None,
+        seed: Optional[int] = None,
     ) -> None:
         self.__x0 = x1
         self.__y0 = y1
@@ -88,6 +91,10 @@ class Maze:
         ]
         self._create_cells()
         self._break_entrance_and_exit()
+        random.seed(seed)
+        i = random.randint(0, self.__num_rows - 1)
+        j = random.randint(0, self.__num_cols - 1)
+        self._break_wall_r(i, j)
 
     def _create_cells(self) -> None:
         for i in range(self.__num_rows):
@@ -120,6 +127,53 @@ class Maze:
         if self.__win:
             entry_cell.draw()
             exit_cell.draw()
+
+    def _break_wall_r(self, i: int, j: int) -> None:
+        if self._cell_is_out_of_bounds(pos=(i, j)):
+            return
+        curr_cell = self._cells[i][j]
+        curr_cell.visited = True
+        while True:
+            to_visit: list[tuple[int, int]] = []
+            pos_neighbours = [(i, j - 1), (i + 1, j), (i, j + 1), (i - 1, j)]
+            for pos in pos_neighbours:
+                if (
+                    not self._cell_is_out_of_bounds(pos)
+                    and not self._cells[pos[0]][pos[1]].visited
+                ):
+                    to_visit.append(pos)
+            if not to_visit:
+                curr_cell.draw()
+                return
+            next_cell = random.choice(to_visit)
+            wall_to_break = self._find_relative_position_of_cell(
+                curr=(i, j), tgt=next_cell
+            )
+            curr_cell.walls[wall_to_break] = False
+
+            self._break_wall_r(next_cell[0], next_cell[1])
+
+    def _cell_is_out_of_bounds(self, pos: tuple[int, int]) -> bool:
+        i, j = pos
+        return (i < 0 or i >= self.__num_rows) or (j < 0 or j >= self.__num_cols)
+
+    def _find_relative_position_of_cell(
+        self, curr: tuple[int, int], tgt: tuple[int, int]
+    ) -> Wall:
+        if curr == tgt:
+            raise ValueError("current and target positions cannot be equal")
+        curr_i, curr_j = curr
+        tgt_i, tgt_j = tgt
+        if curr_i != tgt_i and curr_j != tgt_j:
+            raise ValueError("diagonal adjacencies are not allowed")
+        if curr_i != tgt_i:
+            return Wall.LEFT if curr_i > tgt_i else Wall.RIGHT
+        elif curr_j != tgt_j:
+            return Wall.TOP if curr_j > tgt_j else Wall.BOTTOM
+        else:
+            raise ValueError(
+                "unexpected condition: unable to determine relative position"
+            )
 
     def __str__(self) -> str:
         s = f"Maze with {self.__num_rows} rows and {self.__num_cols} columns, cell size {self.__cell_size}"
