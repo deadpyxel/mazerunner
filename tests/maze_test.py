@@ -81,3 +81,15 @@ def test_cell_adjacency_is_correctly_identified(
 ) -> None:
     curr, tgt = cell_positions
     assert dummy_maze._find_relative_position_of_cell(curr, tgt) == expected
+
+
+def test_maze_resets_visited_cells() -> None:
+    maze = Maze(0, 0, num_rows=5, num_cols=5, cell_size=10)
+
+    for row in maze._cells:
+        for cell in row:
+            cell.visited = True
+
+    maze._reset_cells_visited()
+
+    assert all(cell.visited == False for row in maze._cells for cell in row)
