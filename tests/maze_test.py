@@ -51,14 +51,14 @@ def test_check_for_out_of_bounds_returns_false_for_valid_positions(
     assert dummy_maze._cell_is_out_of_bounds(pos) is False
 
 
-def test_diagnal_adjacency_is_throws_error(dummy_maze: Maze) -> None:
+def test_diagnal_adjacency_raises_error(dummy_maze: Maze) -> None:
     curr = (0, 0)
     tgt = (1, 1)
     with pytest.raises(ValueError):
         dummy_maze._find_relative_position_of_cell(curr, tgt)
 
 
-def test_same_cell_positions_is_throws_error(dummy_maze: Maze) -> None:
+def test_same_cell_positions_raises_error(dummy_maze: Maze) -> None:
     curr = (0, 0)
     tgt = (0, 0)
     with pytest.raises(ValueError):
