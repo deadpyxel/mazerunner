@@ -68,10 +68,10 @@ def test_same_cell_positions_raises_error(dummy_maze: Maze) -> None:
 @pytest.mark.parametrize(
     "cell_positions,expected",
     [
-        pytest.param(((0, 0), (0, 1)), Wall.BOTTOM, id="target_is_bottom"),
-        pytest.param(((0, 1), (0, 0)), Wall.TOP, id="target_is_top"),
-        pytest.param(((0, 0), (1, 0)), Wall.RIGHT, id="target_is_right"),
-        pytest.param(((1, 0), (0, 0)), Wall.LEFT, id="target_is_left"),
+        pytest.param(((0, 0), (1, 0)), Wall.BOTTOM, id="target_is_bottom"),
+        pytest.param(((1, 0), (0, 0)), Wall.TOP, id="target_is_top"),
+        pytest.param(((0, 0), (0, 1)), Wall.RIGHT, id="target_is_right"),
+        pytest.param(((0, 1), (0, 0)), Wall.LEFT, id="target_is_left"),
     ],
 )
 def test_cell_adjacency_is_correctly_identified(

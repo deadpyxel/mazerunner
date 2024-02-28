@@ -178,9 +178,9 @@ class Maze:
         if curr_i != tgt_i and curr_j != tgt_j:
             raise ValueError("diagonal adjacencies are not allowed")
         if curr_i != tgt_i:
-            return Wall.LEFT if curr_i > tgt_i else Wall.RIGHT
+            return Wall.TOP if curr_i > tgt_i else Wall.BOTTOM
         elif curr_j != tgt_j:
-            return Wall.TOP if curr_j > tgt_j else Wall.BOTTOM
+            return Wall.LEFT if curr_j > tgt_j else Wall.RIGHT
         else:
             raise ValueError(
                 "unexpected condition: unable to determine relative position"
