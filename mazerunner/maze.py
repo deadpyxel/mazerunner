@@ -9,8 +9,8 @@ from mazerunner.core import Line, Point, Window
 class Wall(IntEnum):
     TOP = 0
     RIGHT = 1
-    LEFT = 2
-    BOTTOM = 3
+    BOTTOM = 2
+    LEFT = 3
 
 
 class Cell:
