@@ -89,12 +89,19 @@ class Maze:
             [Cell(Point(0, 0), Point(0, 0)) for _ in range(self.__num_cols)]
             for _ in range(self.__num_rows)
         ]
-        self._create_cells()
-        self._break_entrance_and_exit()
         random.seed(seed)
-        i = random.randint(0, self.__num_rows - 1)
-        j = random.randint(0, self.__num_cols - 1)
-        self._break_wall_r(i, j)
+
+    def generate_maze(self) -> None:
+        # instantiates the maze cells
+        self._create_cells()
+        # breaks wall at start and end of the maze
+        self._break_entrance_and_exit()
+        # generates the maze graph representation
+        self.__maze_graph = self._generate_maze_graph()
+        # updates cell walls with graph information and draw the maze
+        self.__create_maze()
+        # Resets the visited status for the maze
+        self._reset_cells_visited()
 
     def _create_cells(self) -> None:
         for i in range(self.__num_rows):
