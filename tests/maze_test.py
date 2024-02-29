@@ -92,7 +92,7 @@ def test_maze_resets_visited_cells() -> None:
 
     maze._reset_cells_visited()
 
-    assert all(cell.visited == False for row in maze._cells for cell in row)
+    assert all(cell.visited is False for row in maze._cells for cell in row)
 
 
 @pytest.mark.parametrize(
