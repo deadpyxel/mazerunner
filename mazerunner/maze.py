@@ -135,30 +135,31 @@ class Maze:
             entry_cell.draw()
             exit_cell.draw()
 
-    def _break_wall_r(self, i: int, j: int) -> None:
-        if self._cell_is_out_of_bounds(pos=(i, j)):
-            return
-        curr_cell = self._cells[i][j]
-        curr_cell.visited = True
-        while True:
-            to_visit: list[tuple[int, int]] = []
-            pos_neighbours = [(i, j - 1), (i + 1, j), (i, j + 1), (i - 1, j)]
-            for pos in pos_neighbours:
-                if (
-                    not self._cell_is_out_of_bounds(pos)
-                    and not self._cells[pos[0]][pos[1]].visited
-                ):
-                    to_visit.append(pos)
-            if not to_visit:
-                curr_cell.draw()
-                return
-            next_cell = random.choice(to_visit)
-            wall_to_break = self._find_relative_position_of_cell(
-                curr=(i, j), tgt=next_cell
-            )
-            curr_cell.walls[wall_to_break] = False
+    def _break_walls_between_cells(
+        self, from_cell: tuple[int, int], to_cell: tuple[int, int]
+    ) -> None:
+        curr_i, curr_j = from_cell
+        tgt_i, tgt_j = to_cell
+        curr_cell = self._cells[curr_i][curr_j]
+        tgt_cell = self._cells[tgt_i][tgt_j]
 
-            self._break_wall_r(next_cell[0], next_cell[1])
+        wall_to_break_curr = self._find_relative_position_of_cell(
+            curr=from_cell, tgt=to_cell
+        )
+        wall_to_break_tgt = self._find_relative_position_of_cell(
+            curr=to_cell, tgt=from_cell
+        )
+
+        curr_cell.walls[wall_to_break_curr] = False
+        tgt_cell.walls[wall_to_break_tgt] = False
+        if self.__win:
+            curr_cell.draw()
+            tgt_cell.draw()
+
+    def __create_maze(self) -> None:
+        for node, neighbours in self.__maze_graph.items():
+            for neighbour in neighbours:
+                self._break_walls_between_cells(node, neighbour)
 
     def _reset_cells_visited(self) -> None:
         """
@@ -192,6 +193,50 @@ class Maze:
             raise ValueError(
                 "unexpected condition: unable to determine relative position"
             )
+
+    def _generate_maze_graph(self) -> dict[tuple[int, int], list[tuple[int, int]]]:
+        graph = {
+            (i, j): [] for i in range(self.__num_rows) for j in range(self.__num_cols)
+        }
+        visited = set()
+
+        def dfs(node: tuple[int, int]) -> None:
+            visited.add(node)
+            i, j = node
+            pos_neighbours = [(i, j - 1), (i + 1, j), (i, j + 1), (i - 1, j)]
+            pos_neighbours = [
+                pos for pos in pos_neighbours if not self._cell_is_out_of_bounds(pos)
+            ]
+            random.shuffle(pos_neighbours)
+            for pos in pos_neighbours:
+                if pos not in visited:
+                    graph[node].append(pos)
+                    graph[pos].append(node)
+                    dfs(pos)
+
+        dfs(node=(0, 0))
+
+        if self._check_connectivity(graph, start_node=(0, 0)) is False:
+            graph = self._generate_maze_graph()
+
+        return graph
+
+    def _check_connectivity(
+        self,
+        graph: dict[tuple[int, int], list[tuple[int, int]]],
+        start_node: tuple[int, int],
+    ) -> bool:
+        visited = set()
+
+        def dfs(node):
+            if node in visited:
+                return
+            visited.add(node)
+            for neighbour in graph[node]:
+                dfs(neighbour)
+
+        dfs(start_node)
+        return len(visited) == len(graph)
 
     def __str__(self) -> str:
         s = f"Maze with {self.__num_rows} rows and {self.__num_cols} columns, cell size {self.__cell_size}"
