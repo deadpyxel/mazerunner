@@ -114,3 +114,22 @@ def test_maze_graph_is_always_connected(dim: tuple[int, int]) -> None:
     graph = maze._generate_maze_graph()
 
     assert maze._check_connectivity(graph, start_node=(0, 0)) is True
+
+
+def test_maze_solve_method_returns_true_for_valid_maze() -> None:
+    rows, cols = 4, 4
+    maze = Maze(0, 0, num_rows=rows, num_cols=cols, cell_size=1, seed=0)
+
+    maze.generate_maze()
+
+    assert maze.solve() is True
+
+
+def test_maze_solve_method_returns_false_for_invalid_maze() -> None:
+    maze = Maze(0, 0, num_rows=2, num_cols=2, cell_size=1, seed=0)
+
+    maze.generate_maze()
+    # remove the connections for start of the maze
+    maze._maze_graph[(0, 0)] = []
+
+    assert maze.solve() is False
