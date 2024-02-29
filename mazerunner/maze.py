@@ -97,11 +97,36 @@ class Maze:
         # breaks wall at start and end of the maze
         self._break_entrance_and_exit()
         # generates the maze graph representation
-        self.__maze_graph = self._generate_maze_graph()
+        self._maze_graph = self._generate_maze_graph()
         # updates cell walls with graph information and draw the maze
         self.__create_maze()
         # Resets the visited status for the maze
         self._reset_cells_visited()
+
+    def solve(self) -> bool:
+        return self._solve_r(pos=(0, 0))
+
+    def _solve_r(self, pos: tuple[int, int]) -> bool:
+        if pos == (self.__num_rows - 1, self.__num_cols - 1):
+            return True
+
+        self._animate()
+        i, j = pos
+        curr_cell = self._cells[i][j]
+        curr_cell.visited = True
+
+        for neighbour in self._maze_graph[pos]:
+            neighbour_cell = self._cells[neighbour[0]][neighbour[1]]
+            if neighbour_cell.visited:
+                continue
+            curr_cell.draw_move(neighbour_cell)
+            if self._solve_r(pos=neighbour):
+                return True
+            else:
+                neighbour_cell.draw_move(curr_cell, undo=True)
+                continue
+
+        return False
 
     def _create_cells(self) -> None:
         for i in range(self.__num_rows):
@@ -157,7 +182,7 @@ class Maze:
             tgt_cell.draw()
 
     def __create_maze(self) -> None:
-        for node, neighbours in self.__maze_graph.items():
+        for node, neighbours in self._maze_graph.items():
             for neighbour in neighbours:
                 self._break_walls_between_cells(node, neighbour)
 
