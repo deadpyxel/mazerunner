@@ -9,6 +9,8 @@ def main() -> int:
     print(f"Maze created: {maze}")
     maze.generate_maze()
 
+    maze.solve()
+
     win.wait_for_close()
 
     return 0
