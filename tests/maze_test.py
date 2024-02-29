@@ -93,3 +93,24 @@ def test_maze_resets_visited_cells() -> None:
     maze._reset_cells_visited()
 
     assert all(cell.visited == False for row in maze._cells for cell in row)
+
+
+@pytest.mark.parametrize(
+    "dim",
+    [
+        pytest.param((1, 1), id="1by1"),
+        pytest.param((2, 2), id="2by2"),
+        pytest.param((4, 4), id="4by4"),
+        pytest.param((8, 8), id="8by8"),
+        pytest.param((16, 16), id="16by16"),
+        pytest.param((16, 8), id="16by8"),
+        pytest.param((8, 16), id="8by16"),
+    ],
+)
+def test_maze_graph_is_always_connected(dim: tuple[int, int]) -> None:
+    rows, cols = dim
+    maze = Maze(0, 0, num_rows=rows, num_cols=cols, cell_size=10, seed=0)
+
+    graph = maze._generate_maze_graph()
+
+    assert maze._check_connectivity(graph, start_node=(0, 0)) is True
